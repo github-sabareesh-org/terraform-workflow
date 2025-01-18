@@ -15,6 +15,9 @@ backend "s3" {
   }
 }
 
+provider "aws" {
+  region = "us-east-1" # Replace with your desired AWS region
+}
 
 resource "aws_instance" "example" {
   ami           = var.ami_id
