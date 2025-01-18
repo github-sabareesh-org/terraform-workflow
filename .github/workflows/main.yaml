@@ -1,0 +1,67 @@
+name: Deploy Terraform with State File Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      ami_id:
+        description: "The AMI ID for the instance"
+        required: true
+        default: "ami-0c55b159cbfafe1f0" # Replace with a default AMI ID
+      instance_type:
+        description: "The instance type for the instance"
+        required: true
+        default: "t2.micro"
+      instance_name:
+        description: "The name of the instance"
+        required: true
+        default: "example-instance"
+      state_file:
+        description: "The Terraform state file name (e.g., state-file.tfstate)"
+        required: true
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Check if state file exists in S3
+      - name: Check S3 for Existing State File
+        id: check-state-file
+        run: |
+          aws s3api head-object --bucket your-s3-bucket-name --key ${{ github.event.inputs.state_file }} || exit 0
+          echo "Error: State file ${{ github.event.inputs.state_file }} already exists in the S3 bucket."
+          exit 1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "us-east-1"
+
+      # Step 3: Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+      # Step 4: Initialize Terraform
+      - name: Terraform Init
+        run: terraform init -backend-config="key=${{ github.event.inputs.state_file }}"
+
+      # Step 5: Plan Terraform
+      - name: Terraform Plan
+        run: terraform plan \
+          -var="ami_id=${{ github.event.inputs.ami_id }}" \
+          -var="instance_type=${{ github.event.inputs.instance_type }}" \
+          -var="instance_name=${{ github.event.inputs.instance_name }}" \
+          -var="state_file=${{ github.event.inputs.state_file }}"
+
+      # Step 6: Apply Terraform
+      - name: Terraform Apply
+        run: terraform apply -auto-approve \
+          -var="ami_id=${{ github.event.inputs.ami_id }}" \
+          -var="instance_type=${{ github.event.inputs.instance_type }}" \
+          -var="instance_name=${{ github.event.inputs.instance_name }}" \
+          -var="state_file=${{ github.event.inputs.state_file }}"
