@@ -6,7 +6,7 @@ on:
       ami_id:
         description: "The AMI ID for the instance"
         required: true
-        default: "ami-0c55b159cbfafe1f0" # Replace with a default AMI ID
+        default: "ami-0df8c184d5f6ae949" # Replace with a default AMI ID
       instance_type:
         description: "The instance type for the instance"
         required: true
@@ -59,11 +59,8 @@ jobs:
 
       # Step 5: Plan Terraform
       - name: Terraform Plan
-        run: terraform plan \
-          -var="ami_id=${{ github.event.inputs.ami_id }}" \
-          -var="instance_type=${{ github.event.inputs.instance_type }}" \
-          -var="instance_name=${{ github.event.inputs.instance_name }}" \
-          -var="state_file=${{ github.event.inputs.state_file }}"
+        run: terraform plan -var="ami_id=${{ github.event.inputs.ami_id }}" -var="instance_type=${{ github.event.inputs.instance_type }}" -var="instance_name=${{ github.event.inputs.instance_name }}" -var="state_file=${{ github.event.inputs.state_file }}"
+
             # Step 6: Apply Terraform
       - name: Terraform Apply
         run: terraform apply -auto-approve \
