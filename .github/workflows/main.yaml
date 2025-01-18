@@ -49,6 +49,13 @@ jobs:
       # Step 4: Initialize Terraform
       - name: Terraform Init
         run: terraform init -backend-config="key=${{ github.event.inputs.state_file }}"
+      - name: Debug Inputs
+        run: |
+          echo "AMI ID: ${{ github.event.inputs.ami_id }}"
+          echo "Instance Type: ${{ github.event.inputs.instance_type }}"
+          echo "Instance Name: ${{ github.event.inputs.instance_name }}"
+          echo "State File: ${{ github.event.inputs.state_file }}"
+        
 
       # Step 5: Plan Terraform
       - name: Terraform Plan
