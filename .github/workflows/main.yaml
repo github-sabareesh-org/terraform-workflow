@@ -74,9 +74,8 @@ jobs:
 
             # Step 6: Apply Terraform
       - name: Terraform Apply
-        run: terraform apply -auto-approve \
-          -var="ami_id=${{ github.event.inputs.ami_id }}" \
-          -var="instance_type=${{ github.event.inputs.instance_type }}" \
-          -var="instance_name=${{ github.event.inputs.instance_name }}" \
-          -var="state_file=${{ github.event.inputs.state_file }}"
-          
+        run: terraform -chdir=EC2 apply -auto-approve -var="ami_id=${{ github.event.inputs.ami_id }}" -var="instance_type=${{ github.event.inputs.instance_type }}" -var="instance_name=${{ github.event.inputs.instance_name }}" -var="state_file=${{ github.event.inputs.state_file }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "us-east-1"  
