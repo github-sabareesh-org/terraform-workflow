@@ -8,7 +8,7 @@ terraform {
 
   }
 backend "s3" {
-    bucket         = "your-s3-bucket-name"
+    bucket         = "terraform-s3-workflow"
     key            = "terraform/state-${var.state_key}.tfstate"
     region         = "us-east-1"
     
