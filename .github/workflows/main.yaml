@@ -27,6 +27,9 @@ jobs:
       # Step 1: Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
+      # Step 2: List files to verify EC2 folder presence
+      - name: List Files
+        run: ls -la  
 
       # Step 2: Check if state file exists in S3
       - name: Check S3 for Existing State File
@@ -48,7 +51,7 @@ jobs:
 
       # Step 4: Initialize Terraform
       - name: Terraform Init
-        run: terraform init -backend-config="key=${{ github.event.inputs.state_file }}"
+        run: terraform -chdir=EC2 init -backend-config="key=${{ github.event.inputs.state_file }}"
       - name: Debug Inputs
         run: |
           echo "AMI ID: ${{ github.event.inputs.ami_id }}"
@@ -59,7 +62,7 @@ jobs:
 
       # Step 5: Plan Terraform
       - name: Terraform Plan
-        run: terraform plan -var="ami_id=${{ github.event.inputs.ami_id }}" -var="instance_type=${{ github.event.inputs.instance_type }}" -var="instance_name=${{ github.event.inputs.instance_name }}" -var="state_file=${{ github.event.inputs.state_file }}"
+        run: terraform -chdir=EC2 plan -var="ami_id=${{ github.event.inputs.ami_id }}" -var="instance_type=${{ github.event.inputs.instance_type }}" -var="instance_name=${{ github.event.inputs.instance_name }}" -var="state_file=${{ github.event.inputs.state_file }}"
 
             # Step 6: Apply Terraform
       - name: Terraform Apply
